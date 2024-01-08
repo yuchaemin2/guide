@@ -28,7 +28,7 @@ DEBUG = True
 # DEBUG = False
 
 ALLOWED_HOSTS = [
-    # 'https://console.firebase.google.com/u/0/project/ican-7eed9/overview'
+    'chaeminyu.pythonanywhere.com'
 ]
 
 
