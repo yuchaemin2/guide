@@ -1,0 +1,82 @@
+        <!-- Search widget-->
+        <div class="card mt-4 mb-4">
+          <div class="card-header"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
+          <div class="card-body">
+              <div class="input-group">
+                  <input id="search-input" class="form-control" type="text" placeholder="Enter search term..." aria-label="Enter search term..." aria-describedby="button-search"/>
+                  <button class="btn btn-primary" id="button-search" type="button" onclink="searchItem()">Go!</button>
+              </div>
+          </div>
+        </div>
+        <script>
+            function searchItem(){
+                searchValue = document.getElementById('search-input').value.trim();
+                if (searchValue.length > 1){
+                    location.href="/shop/search/" + searchValue + "/";
+                }
+                else{
+                    alert('검색어('+ searchValue +')가 너무 짧습니다.');
+                }
+            };
+
+            document.getElementById('search-input').addEventListener('keyup', function(event){
+                if(event.key === 'Enter'){
+                    searchItem();
+                }
+            });
+        </script>
+
+        <!-- Categories widget-->
+        <div class="card mb-4" id="category-card">
+          <div class="card-header">Categories</div>
+          <div class="card-body">
+              <div class="row">
+                  <ul class="list-unstyled mb-0 ml-2">
+                      {% for c in categories %}
+                        <li><a href="{{c.get_absolute_url}}" class="text-dark">{{c}} ({{c.item_set.count}})</a></li>
+                      {% endfor %}
+                  </ul>
+              </div>
+          </div>
+        </div>
+<!--        <div class="card mb-4" id="brand-card">-->
+<!--            <div class="card-header">Brands</div>-->
+<!--            <div class="card-body">-->
+<!--                <div class="row">-->
+<!--                    <ul class="list-unstyled mb-0">-->
+<!--                        {% for b in brands %}-->
+<!--                        <li><a href="{{b.get_absolute_url}}" class="text-dark">{{b}} ({{b.item_set.count}})</a></li>-->
+<!--                        {% endfor %}-->
+<!--                    </ul>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <!-- Categories widget
+        <div class="card mb-4" style="width: 13rem;">
+          <div class="card-header">
+            Categories
+          </div>
+          <ul class="list-group list-group-flush">
+              {% for c in categories %}
+                <li class="list-group-item">
+                    <a href="{{c.get_absolute_url}}">{{c}} ({{c.item_set.count}})</a>
+                </li>
+              {% endfor %}
+          </ul>
+        </div>
+
+        <div class="card mb-4" style="width: 13rem;">
+          <div class="card-header">
+            Brands
+          </div>
+          <ul class="list-group list-group-flush">
+              {% for b in brands %}
+                <li class="list-group-item">
+                    <a href="{{b.get_absolute_url}}">{{b}} ({{b.item_set.count}})</a>
+                </li>
+              {% endfor %}
+          </ul>
+        </div>-->
+
+

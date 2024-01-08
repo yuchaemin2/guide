@@ -1,0 +1,278 @@
+{% extends 'shop/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}
+    {{item.title}} - Shop
+{% endblock %}
+
+{% block main_area %}
+                    <!-- Post content-->
+                    <div id="post-area">
+                        <!-- Post header-->
+                        <header class="mb-4">
+
+<!--                            <span class="badge badge-secondary float-right">-->
+<!--                                <p class="m-0">{{item.price}}₩</p>-->
+<!--                            </span>-->
+                            {% if item.category %}
+                                <span class="badge bg-secondary link-light float-right mr-1">
+                                    <a href="{{item.category.get_absolute_url}}" class="text-decoration-none text-light">{{item.category}}</a>
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary link-light float-right mr-1">
+                                    <a href="/shop/category/no_category" class="text-decoration-none text-light">미분류</a>
+                                </span>
+                            {% endif %}
+
+                            <!-- Post title-->
+                            <h1 class="fw-bolder mb-1 mt-4">{{item.title | lower}}</h1>
+                            {% if item.hook_text %}
+                            <h5 class="text-muted">{{item.hook_text}}</h5>
+                            {% endif %}
+<!--                            {% if item.brand %}-->
+<!--                            <p class="lead">-->
+<!--                                by-->
+<!--                                <a href="{{item.brand.get_absolute_url}}">{{item.brand}}</a>-->
+<!--                            </p>-->
+<!--                            {% else %}-->
+<!--                            <p class="lead">-->
+<!--                                by-->
+<!--                                <a href="/shop/brand/no_brand">미분류</a>-->
+<!--                            </p>-->
+<!--                            {% endif %}<hr/>-->
+                            <!-- Post meta content-->
+                            {% if user.is_authenticated %}
+                                <div id="favourite-section" class="float-right">
+                                    {% if is_favourite %}
+                                        <a href="{% url 'favourite_item' item.pk %}">
+                                            <i class="fa-solid fa-heart fa-lg"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'favourite_item' item.pk %}">
+                                            <i class="fa-regular fa-heart fa-lg"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="text-muted fst-italic mb-2">
+                                Posted on {{item.created_at | date:"Y-m-d h:m:s"}}
+                            </div>
+                        </header><hr/>
+                        {% if user.is_authenticated %}
+                            {% if user.is_superuser or user.is_staff %}
+                                <a href="{% url 'delete_item' item.pk %}" role="button"
+                                    class="btn btn-info btn-sm float-right mb-2">
+                                    <i class="fa-solid fa-trash">Delete Post</i>
+                                </a>
+                                <a href="/shop/update_item/{{item.pk}}" role="button"
+                                    class="btn btn-info btn-sm float-right mr-1 mb-2">
+                                    <i class="fas fa-pen">Edit Post</i>
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                        <!-- Preview image figure-->
+                        <figure class="mb-4">
+                            {% if item.head_image %}
+                            <img class="img-fluid rounded" src="{{item.head_image.url}}" alt="{{p.title}}의 head_image" />
+                            {% else %}
+                            <img class="img-fluid rounded" src="https://picsum.photos/seed/{{post.pk}}/800/200" alt="random image"/>
+                            {% endif %}
+                        </figure>
+                        <!-- Post content-->
+                        <section class="mb-5">
+                            <p class="fs-5 mb-4">{{item.get_content_markdown | safe}}</p>
+<!--                            <i class="fas fa-palette"></i><span> Color: {{item.color}}</span>-->
+<!--                            <br>-->
+                            {% if item.tags.exists %}
+                                <i class="fas fa-tag"></i>
+                                {% for t in item.tags.iterator %}
+                                    <span class="badge badge-pill badge-light">
+                                        <a href="{{t.get_absolute_url}}">{{t}}</a>
+                                    </span>
+                                {% endfor %}
+                                 <br><br>
+                            {% endif %}
+                            <hr>
+
+                            <!--
+                            <form action="{% url 'likes_item' item.pk %}" method="POST">
+                                {% csrf_token %}
+                            {% if user.is_authenticated %}
+                                {% if liked %}
+                                    <button type="submit" name="item_id" value="{{item.id}}" class="btn btn-danger btn-sm">
+                                        UnLike
+                                    </button>
+                                {% else %}
+                                    <button type="submit" name="item_id" value="{{item.id}}" class="btn btn-primary btn-sm">
+                                        Like
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <small>
+                                    <a role="button" class="btn btn-outline-dark btn-sm" href="#" data-toggle="modal" data-target="#loginModal">Login to Like</a>
+                                </small>
+                            {% endif %}
+                                - {{total_likes}} Likes
+                            </form>
+                            -->
+                        </section>
+                    </div>
+                    <!-- Comments section-->
+                    <div id="comment-area" class="mb-5" >
+                            <div class="card-body">
+                                <!-- Comment form-->
+                                <div class="card mb-5">
+                                    <h5 class="card-header">Leave a Comment:</h5>
+                                    <div class="card-body">
+                                        {% if user.is_authenticated %}
+                                        <form class="mb-4" id="comment-form" method="POST" action="{{item.get_absolute_url}}new_comment/">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                {{ comment_form | crispy }}
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </form>
+                                        {% else %}
+                                            <a role="button" class="btn btn-outline-dark btn-block btn-sm" href="#" data-toggle="modal" data-target="#loginModal">
+                                                Log in and Leave a comment
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <!-- comment 모델을 가져 오는 명령어 _set -->
+                                {% if item.comment_set.exists %}
+                                {% for comment in item.comment_set.iterator %}
+                                <!-- Single comment-->
+                                <div class="media d-flex" id="comment-{{comment.pk}}">
+                                    <img class="mr-3 rounded-circle" src="{{comment.get_avatar_url}}" width="60px" />
+                                    <div class="media-body ms-3">
+                                        {% if user.is_authenticated %}
+                                        <a role="button" class="btn btn-sm btn-success float-right ml-1" id="recomment-{{comment.pk}}-recomment-btn"
+                                           data-toggle="modal" data-target="#reCommentModal-{{comment.pk}}">
+                                                <i class="fa-solid fa-comment"></i>
+                                        </a>
+                                        {% if user.is_authenticated and comment.author == user %}
+                                            <div class="float-right">
+                                                <a role="button" class="btn btn-sm btn-info" id="comment-{{comment.pk}}-update-btn"
+                                               href="/shop/update_comment/{{comment.pk}}/">
+                                                edit
+                                                </a>
+                                                <a role="button" href="#" id="comment-{{comment.pk}}-delete-modal-btn" class="btn btn-sm btn-danger"
+                                                   data-toggle="modal" data-target="#deleteCommentModal-{{comment.pk}}">
+                                                delete
+                                                </a>
+                                            </div>
+
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="deleteCommentModal-{{comment.pk}}" tabindex="-1" role="dialog" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                  <div class="modal-content">
+                                                    <div class="modal-header">
+                                                      <h5 class="modal-title" id="deleteModalLabel">Are You Sure?</h5>
+                                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                      </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                      <del>{{ comment | linebreaks }}</del>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                      <a role="button" class="btn btn-danger" href="/shop/delete_comment/{{comment.pk}}/">Delete</a>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                            <div class="modal fade" id="reCommentModal-{{comment.pk}}" tabindex="-1" role="dialog" aria-labelledby="reCommentModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="reCommentModalLabel">Recomment</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <form id="recomment-form" method="POST" action="{% url 'new_recomment' item.pk comment.pk %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    {{ recomment_form | crispy }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                <button type="submit" class="btn btn-primary">Submit</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        <div class="fw-bold">
+                                            {{comment.author.username}}
+                                            <small class="text-muted">{{comment.created_at}}</small>
+                                        </div>
+                                        <p>{{comment.content | linebreaks}}</p>
+                                        {% if comment.created_at != comment.modified_at %}
+                                            <p class="text-muted float-right"><small>Updated: {{comment.modified_at}}</small></p>
+                                        {% endif %}
+                                        <br/><br/>
+                                            <!-- Single comment-->
+                                            {% if comment.recomment_set.exists %}
+                                            {% for recomment in comment.recomment_set.all %}
+                                            <div class="media d-flex" id="recomment-{{recomment.pk}}">
+                                                <img class="mr-3 rounded-circle" src="{{recomment.get_avatar_url}}" alt="{{recomment.author}}" width="60px" />
+                                                <div class="media-body ms-3">
+                                                    {% if user.is_authenticated and recomment.author == user %}
+                                                        <div class="float-right">
+                                                            <a role="button" class="btn btn-sm btn-info" id="recomment-{{recomment.pk}}-update-btn"
+                                                           href="/shop/update_recomment/{{recomment.pk}}/">
+                                                            edit
+                                                            </a>
+                                                            <a role="button" href="#" id="recomment-{{recomment.pk}}-delete-modal-btn" class="btn btn-sm btn-danger"
+                                                               data-toggle="modal" data-target="#deleteReCommentModal-{{recomment.pk}}">
+                                                            delete
+                                                            </a>
+                                                        </div>
+
+                                                        <!-- Modal -->
+                                                        <div class="modal fade" id="deleteReCommentModal-{{recomment.pk}}" tabindex="-1" role="dialog" aria-labelledby="deleteReCommentModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                              <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                  <h5 class="modal-title" id="deleteModalLabel2">Are You Sure?</h5>
+                                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                  </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                  <del>{{recomment | linebreaks }}</del>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                  <a role="button" class="btn btn-danger" href="/shop/delete_recomment/{{recomment.pk}}/">Delete</a>
+                                                                </div>
+                                                              </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="fw-bold">
+                                                        {{recomment.author.username}}
+                                                        <small class="text-muted">{{recomment.updated_at}}</small>
+                                                    </div>
+                                                    <p>{{recomment.content | linebreaks}}</p>
+                                                    {% if recomment.updated_at != recomment.modified_at %}
+                                                        <p class="text-muted float-right"><small>Updated: {{recomment.modified_at}}</small></p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                            {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                    </div>
+{% endblock %}

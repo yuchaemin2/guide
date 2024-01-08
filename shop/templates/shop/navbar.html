@@ -1,0 +1,116 @@
+ {% load socialaccount %}
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="/">GUIDE</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item dropdown">
+<!--            <a class="nav-link" href="/shop/">Info</a>-->
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+              Info
+            </a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="/shop/">전체</a>
+              {% for c in categories %}
+                <a class="dropdown-item" href="{{c.get_absolute_url}}">{{c}}</a>
+              {% endfor %}
+<!--              <a class="dropdown-item" href="/shop/{{pk.1}}/">교과</a>-->
+<!--              <a class="dropdown-item" href="/shop/">비교과</a>-->
+<!--              <a class="dropdown-item" href="/shop/">진로 및 취업</a>-->
+<!--              <a class="dropdown-item" href="/shop/">깜짝 꿀팁</a>-->
+            </div>
+          </li>
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="/shop/favourites/">Mypage</a>
+              </li>
+            {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="/company/">About Us</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+              Board
+            </a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="/board/qna/">Q&A</a>
+            </div>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {% if user.socialaccount_set.all.0.get_avatar_url %}
+                <img class="rounded-circle" width="25px" src="{{user.socialaccount_set.all.0.get_avatar_url}}" alt="">
+              {% else %}
+                <img class="rounded-circle" width="25px" src="https://doitdjango.com/avatar/id/1340/0b4ab25625a60211/svg/{{user.email}}">
+              {% endif %}
+              &nbsp;
+              {{user.username}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="/accounts/logout/">LogOut</a>
+            </div>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">LogIn</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel"><i class="fa-solid fa-right-to-bracket"></i>LogIn</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-6">
+              <a role="button" class="btn btn-outline-dark btn-block btn-sm"
+                href="{% provider_login_url 'google' %}">
+                <i class="fa-brands fa-google"></i> LogIn with Google
+              </a>
+              <a role="button" class="btn btn-outline-dark btn-block btn-sm"
+                href="{% provider_login_url 'kakao' %}">
+                <i class="fas fa-comment"></i> LogIn with Kakao
+              </a>
+              <a role="button" class="btn btn-outline-dark btn-block btn-sm"
+                href="{% provider_login_url 'naver' %}">
+                <i class="fa-sharp fa-solid fa-n"></i> LogIn with Naver
+              </a>
+            </div>
+            <div class="col-6">
+              <a role="button" class="btn btn-outline-dark btn-block btn-sm"
+                href="/accounts/signup/">
+                <i class="fa-regular fa-envelope"></i>SignUp with Email
+              </a>
+              <a role="button" class="btn btn-outline-dark btn-block btn-sm"
+                href="/accounts/login/">
+                <i class="fa-regular fa-envelope"></i>LogIn with Email
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>

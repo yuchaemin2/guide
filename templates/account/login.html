@@ -1,0 +1,75 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+
+{% get_providers as socialaccount_providers %}
+
+  <div class="card" style="width: 34rem;">
+    <div class="card-body">
+      <h3 class="card-title">Sign In</h3>
+
+      {% if socialaccount_providers %}
+
+      <p class="card-text">
+        Please sign in with one
+        of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
+        for a mug account and sign in below:
+      </p>
+
+      <div class="socialaccount_ballot">
+
+        <ul class="socialaccount_providers">
+          <a title="Google" class="btn btn-outline-dark socialaccount_provider google"
+             href="/accounts/google/login/?process=login&next=%2F">Google</a>
+          <a title="Kakao" class="btn btn-outline-dark socialaccount_provider google"
+             href="/accounts/kakao/login/?process=login&next=%2F">Kakao</a>
+          <a title="Naver" class="btn btn-outline-dark socialaccount_provider google"
+             href="/accounts/naver/login/?process=login&next=%2F">Naver</a>
+        </ul>
+
+        <div class="login-or">{% trans 'or' %}</div><hr/>
+
+      </div>
+
+
+      {% include "socialaccount/snippets/login_extra.html" %}
+
+      {% else %}
+      <p>{% blocktrans %}If you have not created an account yet, then please
+      <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+      {% endif %}
+
+      <form class="form-group" method="POST" action="{% url 'account_login' %}">
+        {% csrf_token %}
+
+        {% if redirect_field_value %}
+
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+
+        {% else %}
+
+        <table>
+
+          <div id="div_id_login" class="form-group"> <label for="id_login" class=" requiredField">
+                Username<span class="asteriskField">*</span> </label> <div class=""> <input type="text" name="login" placeholder="Username" autocomplete="username" maxlength="150" class="textinput textInput form-control" required id="id_login"> </div> </div> <div id="div_id_password" class="form-group"> <label for="id_password" class=" requiredField">
+                Password<span class="asteriskField">*</span> </label> <div class=""> <input type="password" name="password" placeholder="Password" autocomplete="current-password" class="textinput textInput form-control" required id="id_password"> </div> </div> <div class="form-group"> <div id="div_id_remember" class="form-check"> <input type="checkbox" name="remember" class="checkboxinput form-check-input" id="id_remember"> <label for="id_remember" class="form-check-label">
+                    Remember Me
+                </label> </div> </div>
+
+        </table>
+
+        {% endif %}
+        <a class="button secondaryAction card-link float-left" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a><br/><br/>
+        <button type="submit" class="btn btn-primary primaryAction float-right">{% trans "Sign In" %}</button>
+      </form>
+
+    </div>
+  </div>
+
+
+{% endblock %}

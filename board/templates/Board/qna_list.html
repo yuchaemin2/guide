@@ -1,0 +1,56 @@
+{% extends 'board/base.html' %}
+
+{% block main_area %}
+
+<section class="py-1 text-center container">
+    <div class="row py-lg-5">
+        <div class="col-lg-6 col-md-8 mx-auto">
+
+                <h1 class="fw-light">Q&A</h1>
+                <p class="lead text-muted">머그에 궁금한 부분이 있나요?<br/>질문을 남겨주세요.</p>
+
+        </div>
+    </div>
+</section>
+
+<div class="alert alert-info small" role="alert">
+    이 페이지는 의견 교환을 위해 따로 만든 페이지입니다. 머그에 대해 궁금한 점이 있거나 나누고 싶은 의견을 적어주세요. <br/> 하지만, 모두 인터넷 에티켓을 지키며 자유게시판을 이용해주세요.
+</div>
+
+<table class="table m-1">
+    <thead class="thead-dark text-center">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">제목</th>
+            <th scope="col">작성자</th>
+            <th scope="col">작성일</th>
+            <th scope="col">댓글</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for qna in qna_list %}
+        <tr>
+            <th scope="row">{{ qna.pk }}</th>
+            <td><a href="{{qna.get_absolute_url}}">{{ qna.title }}</a></td>
+            <td class="text-center">
+                <span class="badge badge-pill badge-light">
+                    <img class="mr-1 rounded-circle" width="20px" src="{{qna.get_avatar_url}}" alt="{{board.author}}">
+                    {{qna.author}}
+                </span>
+            </td>
+            <td class="text-center">{{ qna.created_at | date:"Y-m-d h:m:s"}}</td>
+            <td class="text-center">{{ qna.qcomment_set.count }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+{% if request.user.is_authenticated %}
+    <a href="/board/qna/create/" type="button" class="btn btn-secondary float-right mb-3">글쓰기</a>
+{% else %}
+    <a href="#" data-toggle="modal" data-target="#loginModal" type="button" class="btn btn-secondary float-right">글쓰기</a>
+{% endif %}
+
+{% endblock %}

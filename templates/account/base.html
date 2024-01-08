@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+  <head>
+    <title>{% block head_title %}{% endblock %}</title>
+    {% block extra_head %}
+    {% endblock %}
+    <link href="{% static 'shop/bootstrap4/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" media="screen">
+    <link href="{% static 'allauth/signin.css' %}" rel="stylesheet" type="text/css" media="screen">
+  </head>
+  <body>
+    {% block body %}
+
+    <div class="container">
+
+      {% if messages %}
+      <div class="alert alert-info" role="alert" style="width: 550px; position:relative; left:250px;">
+        <strong>Messages:</strong>
+        <ul>
+          {% for message in messages %}
+          <li>{{message}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <div class="row">
+        <div class="col-lg-6 col-md-12 mx-auto">
+          <strong>Menu:</strong>
+          <ul class="mr-2">
+            {% if user.is_authenticated %}
+            <li style="list-style: none;" class="float-left mr-4 mb-2"><a href="{% url 'account_email' %}" class="text-decoration-none">Change E-mail</a></li>
+            <li style="list-style: none;" class="float-left mr-4 mb-2"><a href="{% url 'account_logout' %}" class="text-decoration-none">Sign Out</a></li>
+            {% else %}
+            <li style="list-style: none;" class="float-left mr-4 mb-2"><a href="{% url 'account_login' %}" class="text-decoration-none">Sign In</a></li>
+            <li style="list-style: none;" class="float-left mr-4 mb-2"><a href="{% url 'account_signup' %}" class="text-decoration-none">Sign Up</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 col-md-12 mx-auto">
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    {% endblock %}
+    {% block extra_body %}
+    {% endblock %}
+  </body>
+</html>

@@ -1,0 +1,182 @@
+{% extends 'board/base.html' %}
+{% load crispy_forms_tags %}
+{% block main_area %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h4 class="card-title">{{qna.title}}</h4>
+
+        {% if user.is_authenticated and qna.author == user %}
+        <div class="float-right ml-1">
+            <a role="button" class="btn btn-sm btn-info mr-1"
+               href="{% url 'update_qna' qna.pk %}">
+                edit
+            </a>
+            <a href="{% url 'delete_qna' qna.pk %}" role="button"
+               class="btn btn-danger btn-sm float-right">
+                delete
+            </a>
+        </div>
+        {% endif %}
+
+        <p class="float-right">{{qna.created_at}}</p>
+        <span class="badge badge-pill badge-light">
+            <img class="mr-1 rounded-circle" src="{{qna.get_avatar_url}}" alt="{{board.author}}" width="40px">
+            {{qna.author}}
+        </span>
+        <hr>
+        <p>{{qna.content}}</p>
+    </div>
+</div>
+
+{% if qna.qcomment_set.exists %}
+    {% for qcomment in qna.qcomment_set.iterator %}
+        <div class="media mb-4" id="comment-{{ qcomment.pk }}">
+            <img class="d-flex mr-3 rounded-circle" src="{{qcomment.get_avatar_url}}" width="60px">
+            <div class="media-body">
+                {% if user.is_authenticated %}
+                <a role="button" class="btn btn-sm btn-success float-right ml-1" id="recomment-{{qcomment.pk}}-recomment-btn"
+                   data-toggle="modal" data-target="#reCommentModal-{{qcomment.pk}}">
+                    <i class="fa-solid fa-comment"></i>
+                </a>
+                {% if qcomment.author == user %}
+                    <div class="float-right">
+                        <a role="button" class="btn btn-sm btn-info" id="comment={{qcomment.pk}}-update-btn"
+                            href="/board/qna/update_comment/{{qcomment.pk}}/">
+                            edit
+                        </a>
+                        </a>
+                        <a role="button" href="#" id="comment-{{qcomment.pk}}-delete-modal-btn" class="btn btn-sm btn-danger"
+                           data-toggle="modal" data-target="#deleteCommentModal-{{qcomment.pk}}">
+                            delete
+                        </a>
+                    </div>
+                <!-- Modal -->
+                <div class="modal fade" id="deleteCommentModal-{{qcomment.pk}}" tabindex="-1" role="dialog" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Are You Sure?</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <del>{{ qcomment | linebreaks }}</del>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <a role="button" class="btn btn-danger" href="/board/delete_comment/{{qcomment.pk}}/">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="modal fade" id="reCommentModal-{{qcomment.pk}}" tabindex="-1" role="dialog" aria-labelledby="reCommentModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="reCommentModalLabel">Recomment</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="recomment-form" method="POST" action="{% url 'new_qrecomment' qna.pk qcomment.pk %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        {{ recomment_form | crispy }}
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <h5 class="mt-0">
+                    {{qcomment.author.username}}&nbsp;&nbsp;
+                    <small class="text-muted">{{qcomment.created_at}}</small>
+                </h5>
+                <p>{{qcomment.content | linebreaks}}</p>
+                <br/><br/>
+                <!-- Single comment-->
+                {% if qcomment.qrecomment_set.exists %}
+                {% for recomment in qcomment.qrecomment_set.all %}
+                <div class="media d-flex" id="recomment-{{recomment.pk}}">
+                    <img class="mr-3 rounded-circle" src="{{recomment.get_avatar_url}}" alt="{{recomment.author}}" width="60px" />
+                    <div class="media-body ms-3">
+                        {% if user.is_authenticated and recomment.author == user %}
+                        <div class="float-right">
+                            <a role="button" class="btn btn-sm btn-info" id="recomment-{{recomment.pk}}-update-btn"
+                               href="/board/update_recomment/{{recomment.pk}}/">
+                                edit
+                            </a>
+                            <a role="button" href="#" id="recomment-{{recomment.pk}}-delete-modal-btn" class="btn btn-sm btn-danger"
+                               data-toggle="modal" data-target="#deleteReCommentModal-{{recomment.pk}}">
+                                delete
+                            </a>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="deleteReCommentModal-{{recomment.pk}}" tabindex="-1" role="dialog" aria-labelledby="deleteReCommentModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel2">Are You Sure?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <del>{{recomment | linebreaks }}</del>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <a role="button" class="btn btn-danger" href="/board/delete_recomment/{{recomment.pk}}/">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="fw-bold">
+                            {{recomment.author.username}}
+                            <small class="text-muted">{{recomment.updated_at}}</small>
+                        </div>
+                        <p>{{ recomment.content | linebreaks}}</p>
+                        {% if recomment.updated_at != recomment.modified_at %}
+                        <p class="text-muted float-right"><small>Updated: {{recomment.modified_at}}</small></p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Comment form-->
+<div class="card mb-5">
+    <h5 class="card-header">Leave a Comment:</h5>
+    <div class="card-body">
+        {% if user.is_authenticated %}
+        <form class="mb-4" id="comment-form" method="POST" action="{{qna.get_absolute_url}}new_comment/">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ comment_form | crispy }}
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        {% else %}
+        <a role="button" class="btn btn-outline-dark btn-block btn-sm" href="#" data-toggle="modal" data-target="#loginModal">
+            Log in and Leave a comment
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
