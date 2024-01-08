@@ -44,7 +44,6 @@ INSTALLED_APPS = [
 
     'crispy_forms',
     'markdownx',
-    'crispy_bootstrap4',
 
     'allauth',
     'allauth.account',
