@@ -29,6 +29,7 @@ class QnAUpdate(LoginRequiredMixin, UpdateView):
 class QnAList(ListView):
     model = QnA
     ordering = '-pk'
+    template_name = 'board/qna_list.html'
 
     def get_context_data(self, **kwargs):
         context = super(QnAList, self).get_context_data()
