@@ -15,5 +15,5 @@ urlpatterns = [
     path('qna/search/<str:q>/', views.QnASearch.as_view()),
     path('qna/create/', views.QnACreate.as_view()),
     path('qna/<int:pk>/', views.QnADetail.as_view()),
-    path('qna/', views.QnAList.as_view(), name='qna_list'),
+    path('qna/', views.QnAList.as_view(), name='board/qna_list'),
 ]
